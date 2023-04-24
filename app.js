@@ -35,7 +35,7 @@ app.get('/api/courses/:id', (req, res) => {
 
 // Handling post requests with express, and input validation with Joi:
 app.post('/api/courses', (req, res) => {
-  const result = validateCourse(course);
+  const result = validateCourse(req.body);
   if (result.error) {
     res.status(400).send(result.error.details[0].message);
     return;
@@ -55,7 +55,7 @@ app.put('/api/courses/:id', (req, res) => {
     res.status(404).send(`Course with id ${req.params.id} not found!`);
     return;
   }
-  const result = validateCourse(course);
+  const result = validateCourse(req.body);
   if (result.error) {
     res.status(400).send(result.error.details[0].message);
     return;
