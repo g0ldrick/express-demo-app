@@ -33,7 +33,7 @@ app.get('/api/courses/:id', (req, res) => {
   res.send(course);
 });
 
-// Handling post requests with express:
+// Handling post requests with express, and input validation with Joi:
 app.post('/api/courses', (req, res) => {
   const schema = Joi.object({
     name: Joi.string().min(3).required(),
@@ -48,5 +48,24 @@ app.post('/api/courses', (req, res) => {
     name: req.body.name,
   };
   courses.push(course);
+  res.send(course);
+});
+
+// Handling put requests with express - updating our course catalogue:
+app.put('/api/courses/:id', (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) {
+    res.status(404).send(`Course with id ${req.params.id} not found!`);
+    return;
+  }
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+  });
+  const result = schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
+  course.name = req.body.name;
   res.send(course);
 });
