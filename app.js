@@ -25,12 +25,6 @@ app.get('/api/courses', (req, res) => {
 });
 
 app.get('/api/courses/:id', (req, res) => {
-  if (!req.body.name || req.body.name < 3)
-    res
-      .status(400)
-      .send(
-        'Bad request! Name is required and length should be greater than 3 characters.'
-      );
   const course = courses.find((c) => c.id === parseInt(req.params.id));
   if (!course)
     res
@@ -41,6 +35,14 @@ app.get('/api/courses/:id', (req, res) => {
 
 // Handling post requests with express:
 app.post('/api/courses', (req, res) => {
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+  });
+  const result = schema.validate(req.body);
+  if (result.error) {
+    res.status(400).send(result.error.details[0].message);
+    return;
+  }
   const course = {
     id: courses.length + 1,
     name: req.body.name,
