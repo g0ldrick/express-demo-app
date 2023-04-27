@@ -17,19 +17,17 @@ let courses = [
 ];
 
 // Handling get requests with express:
-app.get('/', (req, res) => {
-  res.send('testing');
-});
 app.get('/api/courses', (req, res) => {
   res.send(courses);
 });
 
 app.get('/api/courses/:id', (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
-  if (!course)
-    res
+  if (!course) {
+    return res
       .status(404)
       .send(`ERROR 404: NO EXISTING COURSE WITH ID OF ${req.params.id}`);
+  }
   res.send(course);
 });
 
@@ -37,8 +35,7 @@ app.get('/api/courses/:id', (req, res) => {
 app.post('/api/courses', (req, res) => {
   const { error } = validateCourse(req.body);
   if (error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
+    return res.status(400).send(result.error.details[0].message);
   }
   const course = {
     id: courses.length + 1,
@@ -52,15 +49,27 @@ app.post('/api/courses', (req, res) => {
 app.put('/api/courses/:id', (req, res) => {
   const course = courses.find((c) => c.id === parseInt(req.params.id));
   if (!course) {
-    res.status(404).send(`Course with id ${req.params.id} not found!`);
-    return;
+    return res.status(404).send(`Course with id ${req.params.id} not found!`);
   }
+  // Obj destructing to get error attribute from return value of validateCourse()
   const { error } = validateCourse(req.body);
   if (error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
+    return res.status(400).send(result.error.details[0].message);
   }
   course.name = req.body.name;
+  res.send(course);
+});
+
+// Handling delete requests:
+app.delete('/api/courses/:id', (req, res) => {
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) {
+    return res
+      .status(404)
+      .send(`Course with id ${req.params.id} does not exist!`);
+  }
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);
   res.send(course);
 });
 
